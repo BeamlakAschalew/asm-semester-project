@@ -150,16 +150,18 @@ crypto_main:
     jb .chk_low
     cmp dl, 'Z'
     ja .chk_low
-    mov eax, edx
+    ; eax := (dl - 'A' + shift)
+    movzx eax, dl
     sub eax, 'A'
     add eax, r14d
-    ; mod 26 with wrap
+    ; compute signed remainder mod 26 safely: edx:eax / ecx
     mov ecx, 26
-    idiv ecx      ; eax=quot, edx=rem
-    mov eax, edx
+    cdq                 ; sign-extend eax into edx
+    idiv ecx            ; eax=quot, edx=rem in [-25,25]
+    mov eax, edx        ; remainder
     cmp eax, 0
     jge .uc_ok
-    add eax, 26
+    add eax, 26         ; force into [0,25]
 .uc_ok:
     add eax, 'A'
     mov dl, al
@@ -169,10 +171,12 @@ crypto_main:
     jb .emit
     cmp dl, 'z'
     ja .emit
-    mov eax, edx
+    ; eax := (dl - 'a' + shift)
+    movzx eax, dl
     sub eax, 'a'
     add eax, r14d
     mov ecx, 26
+    cdq
     idiv ecx
     mov eax, edx
     cmp eax, 0
