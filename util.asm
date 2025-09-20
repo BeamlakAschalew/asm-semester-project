@@ -15,6 +15,13 @@ len_menu_banner_mid equ $-menu_banner_mid
 menu_banner_bot:    db 0x1B,'[36m','┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',10,0x1B,'[0m'
 len_menu_banner_bot equ $-menu_banner_bot
 menu_items:         db 0x1B,'[35m','[1] ',0x1B,'[0m','Password Checker',10
+                    db 0x1B,'[35m','[2] ',0x1B,'[0m','Text Search Highlighter',10
+                    db 0x1B,'[35m','[3] ',0x1B,'[0m','Replace Substring',10
+                    db 0x1B,'[35m','[4] ',0x1B,'[0m','Character Count',10
+                    db 0x1B,'[35m','[5] ',0x1B,'[0m','Word Count',10
+                    db 0x1B,'[35m','[6] ',0x1B,'[0m','Filter Digits/Letters/Punct',10
+                    db 0x1B,'[35m','[7] ',0x1B,'[0m','Crypto (Caesar/XOR)',10
+                    db 0x1B,'[35m','[8] ',0x1B,'[0m','Diff Tool',10
                     db 0x1B,'[35m','[0] ',0x1B,'[0m','Exit',10
 len_menu_items      equ $-menu_items
 menu_prompt:        db 0x1B,'[1m','Choose an option: ',0x1B,'[0m'
@@ -30,6 +37,13 @@ inbuf:  resb 4
 SECTION .text
 global _start
 %include "password_checker.asm"
+%include "text_search.asm"
+%include "replace.asm"
+%include "char_count.asm"
+%include "word_count.asm"
+%include "filter.asm"
+%include "crypto.asm"
+%include "diff.asm"
 
 _start:
     ; main loop
@@ -73,6 +87,20 @@ _start:
     mov al, [inbuf]
     cmp al, '1'
     je .run_pw
+    cmp al, '2'
+    je .run_ts
+    cmp al, '3'
+    je .run_rp
+    cmp al, '4'
+    je .run_cc
+    cmp al, '5'
+    je .run_wc
+    cmp al, '6'
+    je .run_fl
+    cmp al, '7'
+    je .run_cr
+    cmp al, '8'
+    je .run_df
     cmp al, '0'
     je .exit
     ; invalid
@@ -92,6 +120,106 @@ _start:
     mov rdx, len_return_menu
     syscall
     ; read and discard line
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, inbuf
+    mov rdx, 3
+    syscall
+    jmp .menu
+
+.run_ts:
+    call text_search_main
+    ; wait for Enter to return
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, return_menu
+    mov rdx, len_return_menu
+    syscall
+    ; read and discard line
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, inbuf
+    mov rdx, 3
+    syscall
+    jmp .menu
+
+.run_rp:
+    call replace_main
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, return_menu
+    mov rdx, len_return_menu
+    syscall
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, inbuf
+    mov rdx, 3
+    syscall
+    jmp .menu
+
+.run_cc:
+    call char_count_main
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, return_menu
+    mov rdx, len_return_menu
+    syscall
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, inbuf
+    mov rdx, 3
+    syscall
+    jmp .menu
+
+.run_wc:
+    call word_count_main
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, return_menu
+    mov rdx, len_return_menu
+    syscall
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, inbuf
+    mov rdx, 3
+    syscall
+    jmp .menu
+
+.run_fl:
+    call filter_main
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, return_menu
+    mov rdx, len_return_menu
+    syscall
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, inbuf
+    mov rdx, 3
+    syscall
+    jmp .menu
+
+.run_cr:
+    call crypto_main
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, return_menu
+    mov rdx, len_return_menu
+    syscall
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, inbuf
+    mov rdx, 3
+    syscall
+    jmp .menu
+
+.run_df:
+    call diff_main
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, return_menu
+    mov rdx, len_return_menu
+    syscall
     mov rax, 0
     mov rdi, 0
     mov rsi, inbuf

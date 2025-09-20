@@ -1,0 +1,32 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build util (nasm+ld)",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"set -euo pipefail; nasm -f elf64 util.asm -o util.o; ld -s -o util util.o; echo 'Built ./util'"
+			]
+		},
+		{
+			"label": "Build util (nasm+ld)",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"set -euo pipefail; nasm -f elf64 util.asm -o util.o; ld -s -o util util.o; echo 'Built ./util'"
+			]
+		},
+		{
+			"label": "Run util to print menu",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"./util <<'EOF'\n0\nEOF"
+			]
+		}
+	]
+}
