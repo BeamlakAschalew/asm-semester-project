@@ -27,6 +27,32 @@
 				"-lc",
 				"./util <<'EOF'\n0\nEOF"
 			]
+		},
+		{
+			"label": "Assemble password_checker.asm (nasm)",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"set -euo pipefail; nasm -f elf64 password_checker.asm -o password_checker.o && echo 'Assembled password_checker.o'"
+			],
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Assemble crypto.asm (nasm)",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"-lc",
+				"set -euo pipefail; nasm -f elf64 crypto.asm -o crypto.o && echo 'Assembled crypto.o'"
+			],
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
 		}
 	]
 }
