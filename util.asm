@@ -19,9 +19,7 @@ menu_items:         db 0x1B,'[35m','[1] ',0x1B,'[0m','Password Checker',10
                     db 0x1B,'[35m','[3] ',0x1B,'[0m','Replace Substring',10
                     db 0x1B,'[35m','[4] ',0x1B,'[0m','Character Count',10
                     db 0x1B,'[35m','[5] ',0x1B,'[0m','Word Count',10
-                    db 0x1B,'[35m','[6] ',0x1B,'[0m','Filter Digits/Letters/Punct',10
-                    db 0x1B,'[35m','[7] ',0x1B,'[0m','Caesar Cipher',10
-                    db 0x1B,'[35m','[8] ',0x1B,'[0m','Diff Tool',10
+                    db 0x1B,'[35m','[6] ',0x1B,'[0m','Caesar Cipher',10
                     db 0x1B,'[35m','[0] ',0x1B,'[0m','Exit',10
 len_menu_items      equ $-menu_items
 menu_prompt:        db 0x1B,'[1m','Choose an option: ',0x1B,'[0m'
@@ -41,9 +39,7 @@ global _start
 %include "replace.asm"
 %include "char_count.asm"
 %include "word_count.asm"
-%include "filter.asm"
 %include "crypto.asm"
-%include "diff.asm"
 
 _start:
     ; main loop
@@ -96,11 +92,7 @@ _start:
     cmp al, '5'
     je .run_wc
     cmp al, '6'
-    je .run_fl
-    cmp al, '7'
     je .run_cr
-    cmp al, '8'
-    je .run_df
     cmp al, '0'
     je .exit
     ; invalid
@@ -185,19 +177,6 @@ _start:
     syscall
     jmp .menu
 
-.run_fl:
-    call filter_main
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, return_menu
-    mov rdx, len_return_menu
-    syscall
-    mov rax, 0
-    mov rdi, 0
-    mov rsi, inbuf
-    mov rdx, 3
-    syscall
-    jmp .menu
 
 .run_cr:
     call crypto_main
@@ -213,19 +192,6 @@ _start:
     syscall
     jmp .menu
 
-.run_df:
-    call diff_main
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, return_menu
-    mov rdx, len_return_menu
-    syscall
-    mov rax, 0
-    mov rdi, 0
-    mov rsi, inbuf
-    mov rdx, 3
-    syscall
-    jmp .menu
 
 .exit:
     mov rax, 60
