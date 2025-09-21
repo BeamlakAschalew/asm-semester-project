@@ -154,7 +154,9 @@ flag_black:  resb 1                      ; 1 if matches blacklist
 
 SECTION .text                           ; Code section
 global password_checker_main            ; Exported entry point for this module
+; Overall: Securely read a hidden password, analyze strength, print rating, bar, and suggestions
 
+; Block: password_checker_main — Banner, stty off, masked input, stty on, analyze and render
 password_checker_main:                  ; Main routine (returns to caller)
     ; preserve callee-saved registers
     push rbp                            ; Save base pointer
@@ -524,6 +526,7 @@ password_checker_main:                  ; Main routine (returns to caller)
 ; Subroutines
 ;-------------------------------------
 ; run_stty(rdi=argv_ptr)                 ; Launches stty with provided argv, waits for completion
+; Block: run_stty — Fork/exec stty with argv in rdi; parent waits, child execs
 run_stty:
     push rbp                            ; prologue
     mov rbp, rsp
@@ -563,6 +566,7 @@ run_stty:
     ret
 
 ; read_password -> returns length in rax, stores in pw_buf and pw_len
+; Block: read_password — Read bytes, mask with '*', handle backspace, stop on newline; return length
 read_password:
     push rbp                            ; prologue
     mov rbp, rsp
@@ -626,6 +630,7 @@ read_password:
     ret
 
 ; analyze_password -> returns score in rax, sets flags
+; Block: analyze_password — Scan flags, compute score (0..5), blacklist exact matches
 analyze_password:
     push rbp                            ; prologue
     mov rbp, rsp
@@ -769,6 +774,7 @@ analyze_password:
 
 ; eq_case_ins(rdi=pw_ptr, rsi=pw_len, rdx=str_ptr, rcx=str_len) -> rax=1 if equal, else 0
 ; compares exact length and each char tolower
+; Block: eq_case_ins — Case-insensitive equality for two buffers of given lengths
 eq_case_ins:
     push rbp                            ; prologue
     mov rbp, rsp

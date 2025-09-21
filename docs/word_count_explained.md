@@ -5,7 +5,6 @@ This module reads up to 64 KiB of text from stdin, then supports two modes:
 - [1] Total words: counts sequences of non-whitespace characters.
 - [2] Specific word count: counts case-insensitive occurrences of a given word.
 
-
 ## Flow overview
 
 1. Banner and prompt for input text (Ctrl+D to finish).
@@ -21,14 +20,12 @@ This module reads up to 64 KiB of text from stdin, then supports two modes:
    - For each position `i` in the text where the remaining length fits the word length, compare `wc_text[i..]` to `wc_word` case-insensitively via `wc_eq_ci_len`.
    - On match, increment count and advance `i` by the word length (non-overlapping matches). Print "Occurrences: N".
 
-
 ## Helpers
 
 - `wc_eq_ci_len(rdi=ptrA, rsi=ptrB, rcx=len) -> rax=1/0`:
   - Compares two byte sequences case-insensitively (ASCII A..Z normalized to a..z) for exactly `len` bytes; returns 1 if equal, else 0.
 - `wc_u64_to_dec(rdi=value, rsi=buf) -> rax=len`:
   - Writes the decimal ASCII representation of an unsigned 64-bit integer into `buf`, returns the number of digits.
-
 
 ## Edge cases and notes
 
@@ -37,7 +34,6 @@ This module reads up to 64 KiB of text from stdin, then supports two modes:
 - Counting of words is strictly ASCII whitespace-based; it doesn't handle Unicode categories.
 - Case-insensitivity is ASCII-only (A..Z mapped to a..z).
 - The search is non-overlapping: after a match, the index advances by the word length.
-
 
 ## Usage
 

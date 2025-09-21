@@ -56,10 +56,12 @@ ts_num_buf:   resb 32                               ; Decimal buffer for summary
 
 SECTION .text                                       ; Code section
 global text_search_main                              ; Exported entry point
+; Overall: Read text and keyword, print text with matches highlighted, then a match count
 
 ;-------------------------------------
 ; Entry
 ;-------------------------------------
+; Block: text_search_main — Banner, read text, read keyword, highlight and summarize
 text_search_main:
     push rbp                                        ; Prologue
     mov rbp, rsp                                     ; Establish stack frame
@@ -93,6 +95,7 @@ text_search_main:
 
     ; read until EOF or buffer full
     xor rbx, rbx               ; total len             ; rbx = total bytes read
+; Block: .read_loop — Read stdin into ts_text_buf until EOF or full
 .read_loop:
     mov rax, 0                                       ; sys_read
     mov rdi, 0                                       ; stdin
@@ -177,6 +180,7 @@ text_search_main:
     syscall
     jmp .summary                                        ; skip search
 
+; Block: .search_loop — Scan, print either highlight+keyword or single char
 .search_loop:
     cmp r12, r13                                        ; i >= textlen?
     jae .summary
@@ -234,6 +238,7 @@ text_search_main:
     inc r12                                             ; i++
     jmp .search_loop
 
+; Block: .print_rest — Print the remaining text when fewer than kwlen bytes remain
 .print_rest:
     ; print remaining bytes
     mov rax, 1                                          ; sys_write
@@ -246,6 +251,7 @@ text_search_main:
     mov r12, r13                                        ; i = textlen
     jmp .summary
 
+; Block: .summary — Print match count (r15) as decimal
 .summary:
     ; newline then summary count
     mov rax, 1                                          ; sys_write
@@ -271,6 +277,7 @@ text_search_main:
     mov rdx, ts_len_nl                                  ; len
     syscall
 
+; Block: .done — Restore regs and return
 .done:
     pop r15                                             ; Restore callee-saved regs
     pop r14
@@ -284,6 +291,7 @@ text_search_main:
 ; Helpers
 ;-------------------------------------
 ; ts_eq_ci_len(rdi=ptr1, rsi=ptr2, rcx=len) -> rax=1 if equal case-insensitive else 0
+; Block: ts_eq_ci_len — Case-insensitive fixed-length compare
 ts_eq_ci_len:
     push rbp                                          ; Prologue
     mov rbp, rsp
@@ -323,6 +331,7 @@ ts_eq_ci_len:
     ret
 
 ; ts_u64_to_dec(rdi=value, rsi=buf) -> rax=len, writes ASCII digits to buf
+; Block: ts_u64_to_dec — Convert unsigned 64-bit to decimal string
 ts_u64_to_dec:
     push rbp                                          ; Prologue
     mov rbp, rsp

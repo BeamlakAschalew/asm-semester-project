@@ -39,7 +39,9 @@ rp_rlen:   resq 1                                   ; Replacement length
 
 SECTION .text                                      ; Code
 global replace_main                                 ; Export entry
+; Overall: Read text, target, and replacement; print text with non-overlapping replacements highlighted
 
+; Block: replace_main — Banner, read inputs, validate target, output with replacements
 replace_main:
     push rbp                                        ; Prologue
     mov rbp, rsp                                     ; Frame
@@ -72,6 +74,7 @@ replace_main:
     syscall
 
     xor rbx, rbx                                     ; total read
+; Block: .rread — Read stdin into rp_text until EOF or full
 .rread:
     mov rax, 0                                       ; sys_read
     mov rdi, 0                                       ; stdin
@@ -156,6 +159,7 @@ replace_main:
     syscall
     jmp .done
 
+; Block: .do_output — Iterate text, matching target; print highlighted replacement or literal char
 .do_output:
     ; header
     mov rax, 1                                       ; sys_write
@@ -220,6 +224,7 @@ replace_main:
     syscall
     inc r12                                          ; i++
     jmp .loop
+; Block: .print_rest — Print remaining tail when fewer than tlen bytes remain
 .print_rest:
     mov rax, 1                                       ; sys_write
     mov rdi, 1                                       ; stdout
@@ -233,6 +238,7 @@ replace_main:
 .end_output:
     ; done                                           ; fallthrough to epilogue
 
+; Block: .done — Restore regs and return
 .done:
     pop r15                                          ; Restore regs
     pop r14
@@ -243,6 +249,7 @@ replace_main:
     ret                                              ; Return
 
 ; rp_eq_len(rdi=ptr1, rsi=ptr2, rcx=len) -> rax=1 if equal else 0
+; Block: rp_eq_len — Fixed-length byte-wise equality test
 rp_eq_len:
     push rbp                                         ; Prologue
     mov rbp, rsp

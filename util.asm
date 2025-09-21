@@ -33,6 +33,7 @@ inbuf:  resb 4
 
 SECTION .text
 global _start
+; Overall: Entry point and interactive menu dispatcher
 %include "password_checker.asm"
 %include "text_search.asm"
 %include "replace.asm"
@@ -40,7 +41,7 @@ global _start
 %include "crypto.asm"
 
 _start:
-    ; main loop
+    ; Block: .menu — Render menu, prompt for a choice, and dispatch to a module
 .menu:
     ; print banner
     mov rax, 1
@@ -99,6 +100,7 @@ _start:
     syscall
     jmp .menu
 
+; Block: .run_pw — Run Password Checker module then wait for Enter and return
 .run_pw:
     call password_checker_main
     ; wait for Enter to return
@@ -115,6 +117,7 @@ _start:
     syscall
     jmp .menu
 
+; Block: .run_ts — Run Text Search Highlighter then wait and return
 .run_ts:
     call text_search_main
     ; wait for Enter to return
@@ -131,6 +134,7 @@ _start:
     syscall
     jmp .menu
 
+; Block: .run_rp — Run Replace Substring then wait and return
 .run_rp:
     call replace_main
     mov rax, 1
@@ -146,6 +150,7 @@ _start:
     jmp .menu
 
 
+; Block: .run_wc — Run Word Count then wait and return
 .run_wc:
     call word_count_main
     mov rax, 1
@@ -161,6 +166,7 @@ _start:
     jmp .menu
 
 
+; Block: .run_cr — Run Caesar Cipher then wait and return
 .run_cr:
     call crypto_main
     mov rax, 1
@@ -176,6 +182,7 @@ _start:
     jmp .menu
 
 
+; Block: .exit — Cleanly exit the program
 .exit:
     mov rax, 60
     xor rdi, rdi

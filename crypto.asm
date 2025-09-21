@@ -24,7 +24,9 @@ cr_in:   resb 16                                       ; Small input buffer for 
 
 SECTION .text                                          ; Code section
 global crypto_main                                     ; Exported entry point
+; Overall: Reads text and shift, applies Caesar cipher to letters, prints result
 
+; Block: crypto_main — Banner, read text, parse shift, transform, print
 crypto_main:                                           ; Main driver for crypto tools
     push rbp                                           ; Prologue: save base pointer
     mov rbp, rsp                                       ; Establish stack frame
@@ -53,6 +55,7 @@ crypto_main:                                           ; Main driver for crypto 
     mov rdx, cr_len_prompt_text                        ; len
     syscall
     xor rbx, rbx                                       ; total bytes read = 0
+; Block: .rloop — Read stdin into cr_text until EOF or buffer full
 .rloop:
     mov rax, 0                                         ; sys_read
     mov rdi, 0                                         ; fd=stdin
@@ -94,6 +97,7 @@ crypto_main:                                           ; Main driver for crypto 
     mov bl, [cr_in+1]                                  ; advance one char
 .parse_d:
     xor eax, eax                                       ; accumulator = 0
+; Block: .ps_loop — Parse decimal digits of shift, accumulating in eax
 .ps_loop:
     cmp bl, '0'                                        ; below '0'?
     jb .ps_done                                        ; stop parsing
@@ -123,6 +127,7 @@ crypto_main:                                           ; Main driver for crypto 
     mov rsi, cr_output_hdr                             ; "Result:" header
     mov rdx, cr_len_output_hdr                         ; len
     syscall
+; Block: .caesar_loop — Walk bytes and shift only A..Z/a..z preserving case
 .caesar_loop:
     cmp r12, r13                                        ; i >= n ?
     jae .done                                           ; end
@@ -180,6 +185,7 @@ crypto_main:                                           ; Main driver for crypto 
 
     ; (XOR mode removed)
 
+; Block: .done — Restore regs and return
 .done:
     pop r12                                             ; Restore callee-saved regs
     pop rbx

@@ -35,7 +35,9 @@ wc_wlen:   resq 1
 
 SECTION .text
 global word_count_main
+; Overall: Read text then either count total words or count case-insensitive occurrences of a given word
 
+; Block: word_count_main — Banner, read text, choose mode, run counting, print result
 word_count_main:
     push rbp
     mov rbp, rsp
@@ -67,6 +69,7 @@ word_count_main:
     mov rdx, wc_len_prompt_text
     syscall
     xor rbx, rbx
+; Block: .rloop — Read stdin into wc_text until EOF or full
 .rloop:
     mov rax, 0
     mov rdi, 0
@@ -135,6 +138,7 @@ word_count_main:
     mov r15, [wc_wlen]
     cmp r15, 0
     je .spec_done
+; Block: .spec_loop — Walk text and count non-overlapping matches of wc_word
 .spec_loop:
     cmp r12, r14
     jae .spec_done
@@ -177,6 +181,7 @@ word_count_main:
     syscall
     jmp .done
 
+; Block: .total — Scan text and increment count on transitions into non-whitespace
 .total:
     ; count words as sequences of non-whitespace characters
     xor r12, r12            ; i
@@ -250,6 +255,7 @@ word_count_main:
     ret
 
 ; helpers
+; Block: wc_eq_ci_len — Case-insensitive fixed-length equality
 wc_eq_ci_len:
     push rbp
     mov rbp, rsp
@@ -285,6 +291,7 @@ wc_eq_ci_len:
     pop rbp
     ret
 
+; Block: wc_u64_to_dec — Convert unsigned 64-bit to decimal ASCII; returns length
 wc_u64_to_dec:
     push rbp
     mov rbp, rsp
