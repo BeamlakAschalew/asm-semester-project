@@ -20,7 +20,7 @@ menu_items:         db 0x1B,'[35m','[1] ',0x1B,'[0m','Password Checker',10
                     db 0x1B,'[35m','[4] ',0x1B,'[0m','Character Count',10
                     db 0x1B,'[35m','[5] ',0x1B,'[0m','Word Count',10
                     db 0x1B,'[35m','[6] ',0x1B,'[0m','Filter Digits/Letters/Punct',10
-                    db 0x1B,'[35m','[7] ',0x1B,'[0m','Crypto (Caesar/XOR)',10
+                    db 0x1B,'[35m','[7] ',0x1B,'[0m','Caesar Cipher',10
                     db 0x1B,'[35m','[8] ',0x1B,'[0m','Diff Tool',10
                     db 0x1B,'[35m','[0] ',0x1B,'[0m','Exit',10
 len_menu_items      equ $-menu_items

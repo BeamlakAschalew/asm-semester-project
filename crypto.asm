@@ -1,4 +1,4 @@
-; Crypto (Caesar / XOR) - NASM x86_64 Linux (module) ; Module providing simple Caesar and XOR transforms
+; Caesar Cipher - NASM x86_64 Linux (module)         ; Module providing a simple Caesar shift transform
 ; Exposes: crypto_main                               ; Entry point callable from a larger program
 
 BITS 64                                                ; Assemble for 64-bit mode
@@ -6,18 +6,14 @@ BITS 64                                                ; Assemble for 64-bit mod
 SECTION .data                                          ; Initialized data and UI strings
 cr_banner_top: db 0x1B,'[36m','┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',10   ; Cyan top banner
 cr_len_banner_top equ $-cr_banner_top                  ; Length of top banner
-cr_banner_mid: db 0x1B,'[1m',0x1B,'[36m','┃                 Crypto Tools (ASM)          ┃',10 ; Bold cyan title
+cr_banner_mid: db 0x1B,'[1m',0x1B,'[36m','┃               Caesar Cipher (ASM)          ┃',10 ; Bold cyan title
 cr_len_banner_mid equ $-cr_banner_mid                  ; Length of mid banner
 cr_banner_bot: db 0x1B,'[36m','┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',10,0x1B,'[0m' ; Bottom + reset
 cr_len_banner_bot equ $-cr_banner_bot                  ; Length of bottom banner
 cr_prompt_text: db 0x1B,'[1m','Enter text ',0x1B,'[0m',0x1B,'[90m','(Ctrl+D to finish):',0x1B,'[0m',10 ; Input prompt
 cr_len_prompt_text equ $-cr_prompt_text                ; Length of input prompt
-cr_prompt_mode: db 10,0x1B,'[1m','Mode: ',0x1B,'[0m','[1] Caesar  [2] XOR',10 ; Mode selection prompt
-cr_len_prompt_mode equ $-cr_prompt_mode                ; Length of mode prompt
 cr_prompt_shift: db 0x1B,'[1m','Caesar shift (-25..25): ',0x1B,'[0m' ; Prompt for Caesar shift
 cr_len_prompt_shift equ $-cr_prompt_shift              ; Length of shift prompt
-cr_prompt_key: db 0x1B,'[1m','XOR key (single byte 0-255): ',0x1B,'[0m' ; Prompt for XOR key
-cr_len_prompt_key equ $-cr_prompt_key                  ; Length of XOR key prompt
 cr_output_hdr: db 10,0x1B,'[1m','Result:',0x1B,'[0m',10 ; Output header
 cr_len_output_hdr equ $-cr_output_hdr                  ; Length of output header
 
@@ -76,21 +72,7 @@ crypto_main:                                           ; Main driver for crypto 
 .rdone:
     mov [cr_len], rbx                                  ; save total length
 
-    ; mode
-    mov rax, 1                                         ; sys_write
-    mov rdi, 1                                         ; stdout
-    mov rsi, cr_prompt_mode                            ; show mode options
-    mov rdx, cr_len_prompt_mode                        ; len
-    syscall
-    mov rax, 0                                         ; sys_read
-    mov rdi, 0                                         ; stdin
-    mov rsi, cr_in                                     ; small buffer
-    mov rdx, 4                                         ; read up to 4 bytes (e.g., "1\n")
-    syscall
-    mov al, [cr_in]                                    ; first char
-    cmp al, '2'                                        ; '2' selects XOR
-    je .xor                                            ; go to XOR mode
-    ; Caesar default
+    ; Caesar shift (only mode)
     mov rax, 1                                         ; sys_write
     mov rdi, 1                                         ; stdout
     mov rsi, cr_prompt_shift                           ; ask for shift amount
@@ -196,59 +178,7 @@ crypto_main:                                           ; Main driver for crypto 
     inc r12                                             ; i++
     jmp .caesar_loop                                    ; continue loop
 
-.xor:
-    mov rax, 1                                          ; sys_write
-    mov rdi, 1                                          ; stdout
-    mov rsi, cr_prompt_key                              ; ask for XOR key (0..255)
-    mov rdx, cr_len_prompt_key                          ; len
-    syscall
-    mov rax, 0                                          ; sys_read
-    mov rdi, 0                                          ; stdin
-    mov rsi, cr_in                                      ; buffer for key
-    mov rdx, 8                                          ; read up to 8 bytes
-    syscall
-    ; parse first number token (0-255)
-    xor eax, eax                                        ; accumulator
-    mov bl, [cr_in]                                     ; current char
-.px_loop:
-    cmp bl, '0'
-    jb .px_done                                         ; not a digit
-    cmp bl, '9'
-    ja .px_done                                         ; not a digit
-    imul eax, eax, 10                                   ; acc *= 10
-    mov r12d, ebx                                       ; r12d = bl
-    sub r12d, '0'                                       ; digit value
-    add eax, r12d                                       ; acc += digit
-    mov bl, [cr_in+1]                                   ; shift buffer left by 1
-    mov byte [cr_in], bl
-    mov bl, [cr_in]                                     ; load next char
-    jmp .px_loop
-.px_done:
-    and eax, 0xFF                                       ; clamp to byte
-    mov r12d, eax          ; key                         ; r12b is the XOR key
-    ; output header
-    mov rax, 1                                          ; sys_write
-    mov rdi, 1                                          ; stdout
-    mov rsi, cr_output_hdr                              ; "Result:" header
-    mov rdx, cr_len_output_hdr                          ; len
-    syscall
-    ; XOR transform on all bytes
-    xor r13, r13                                        ; i = 0
-    mov r14, [cr_len]                                   ; n = length
-.xor_loop:
-    cmp r13, r14                                        ; i >= n ?
-    jae .done                                           ; end
-    mov dl, [cr_text + r13]                             ; dl = src byte
-    xor dl, r12b                                        ; XOR with key
-    mov rax, 1                                          ; sys_write
-    mov rdi, 1                                          ; stdout
-    lea rsi, [rel cr_text]                              ; (unused) leftover addressing
-    mov [cr_text], dl                                   ; put output byte at buffer start
-    mov rsi, cr_text                                    ; buf
-    mov rdx, 1                                          ; len=1
-    syscall                                             ; write one byte
-    inc r13                                             ; i++
-    jmp .xor_loop
+    ; (XOR mode removed)
 
 .done:
     pop r12                                             ; Restore callee-saved regs
