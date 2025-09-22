@@ -10,7 +10,7 @@ SECTION .data
 ; Menu strings
 menu_banner_top:    db 0x1B,'[36m','┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',10
 len_menu_banner_top equ $-menu_banner_top
-menu_banner_mid:    db 0x1B,'[1m',0x1B,'[36m','┃   ASM String Utilities   ┃',10
+menu_banner_mid:    db 0x1B,'[1m',0x1B,'[36m','┃    ASM String Utilities    ┃',10
 len_menu_banner_mid equ $-menu_banner_mid
 menu_banner_bot:    db 0x1B,'[36m','┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',10,0x1B,'[0m'
 len_menu_banner_bot equ $-menu_banner_bot

@@ -25,7 +25,7 @@ ts_len_hl_on   equ $-ts_hl_on                        ; Length of highlight seque
 ; UI strings
 ts_banner_top: db 0x1B,'[36m','┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',10 ; Top banner
 ts_len_banner_top equ $-ts_banner_top               ; Length
-ts_banner_mid: db 0x1B,'[1m',0x1B,'[36m','┃        Text Search Highlighter (ASM)        ┃',10 ; Title line
+ts_banner_mid: db 0x1B,'[1m',0x1B,'[36m','┃        Text Search Highlighter (ASM)         ┃',10 ; Title line
 ts_len_banner_mid equ $-ts_banner_mid               ; Length
 ts_banner_bot: db 0x1B,'[36m','┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',10,0x1B,'[0m' ; Bottom + reset
 ts_len_banner_bot equ $-ts_banner_bot               ; Length

@@ -71,7 +71,8 @@ crypto_main:                                           ; Main driver for crypto 
     js .rdone                                          ; error
     add rbx, rax                                       ; accumulate length
     cmp rbx, 65536                                     ; still under limit?
-    jb .rloop                                          ; continue reading until EOF
+    jb .rloop
+; Block: .rdone — Finalize reading
 .rdone:
     mov [cr_len], rbx                                  ; save total length
 

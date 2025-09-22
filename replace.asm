@@ -14,7 +14,7 @@ rp_hl:    db 0x1B,'[30;42m'   ; black on green background ; highlight style
 rp_len_hl equ $-rp_hl                               ; len
 rp_banner_top: db 0x1B,'[36m','┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓',10 ; top banner
 rp_len_banner_top equ $-rp_banner_top               ; len
-rp_banner_mid: db 0x1B,'[1m',0x1B,'[36m','┃           Replace Substring (ASM)           ┃',10 ; title
+rp_banner_mid: db 0x1B,'[1m',0x1B,'[36m','┃           Replace Substring (ASM)            ┃',10 ; title
 rp_len_banner_mid equ $-rp_banner_mid               ; len
 rp_banner_bot: db 0x1B,'[36m','┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',10,0x1B,'[0m' ; bottom+reset
 rp_len_banner_bot equ $-rp_banner_bot               ; len

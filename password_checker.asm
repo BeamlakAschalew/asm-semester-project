@@ -42,7 +42,7 @@ len_back_erase equ $-back_erase            ; Length of back_erase
 ; Banner
 banner_top:    db 0x1B,'[36m', '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓', 10 ; Cyan top border
 len_banner_top equ $-banner_top                                                             ; Length of top banner
-banner_mid:    db 0x1B,'[1m', 0x1B,'[36m', '┃   Password Strength Checker (NASM, Linux)   ┃', 10 ; Title line
+banner_mid:    db 0x1B,'[1m', 0x1B,'[36m', '┃   Password Strength Checker (NASM, Linux)    ┃', 10 ; Title line
 len_banner_mid equ $-banner_mid                                                             ; Length of middle banner
 banner_bot:    db 0x1B,'[36m', '┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛', 10, 0x1B,'[0m' ; Bottom + reset
 len_banner_bot equ $-banner_bot                                                             ; Length of bottom banner
