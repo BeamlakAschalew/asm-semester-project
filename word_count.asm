@@ -169,10 +169,10 @@ word_count_main:
     mov rdi, r13
     lea rsi, [rel wc_num]
     call wc_u64_to_dec
+    mov rdx, rax           ; preserve length of number
     mov rax, 1
     mov rdi, 1
     lea rsi, [rel wc_num]
-    mov rdx, rax
     syscall
     mov rax, 1
     mov rdi, 1
@@ -191,8 +191,10 @@ word_count_main:
 .tw_loop:
     cmp r12, r13
     jae .tw_done
+    ; default step = 1 byte; detect ASCII and common UTF-8 whitespace
+    mov r10, 1              ; step
     mov al, [wc_text + r12]
-    ; classify whitespace: space, tab, nl, cr, vt, ff
+    ; classify ASCII whitespace: space, tab, nl, cr, vt, ff
     mov bl, 0               ; is_ws = 0
     cmp al, ' '
     je .mark_ws
@@ -206,6 +208,41 @@ word_count_main:
     je .mark_ws             ; vt
     cmp al, 12
     je .mark_ws             ; ff
+
+    ; Detect common UTF-8 whitespace sequences
+    ; NBSP (U+00A0) -> 0xC2 0xA0
+    ; LS (U+2028)  -> 0xE2 0x80 0xA8
+    ; PS (U+2029)  -> 0xE2 0x80 0xA9
+    ; Compute remaining length = r13 - r12
+    mov rax, r13
+    sub rax, r12
+    cmp rax, 2
+    jb .after_ws            ; not enough bytes for any UTF-8 sequence
+    ; check NBSP first (2 bytes)
+    cmp al, 0xC2
+    jne .check_utf3
+    mov dl, [wc_text + r12 + 1]
+    cmp dl, 0xA0
+    jne .after_ws
+    mov bl, 1               ; is_ws
+    mov r10, 2              ; step over both bytes
+    jmp .after_ws
+.check_utf3:
+    cmp rax, 3
+    jb .after_ws
+    cmp al, 0xE2
+    jne .after_ws
+    mov dl, [wc_text + r12 + 1]
+    cmp dl, 0x80
+    jne .after_ws
+    mov dl, [wc_text + r12 + 2]
+    cmp dl, 0xA8
+    je .mark_ws_utf3
+    cmp dl, 0xA9
+    jne .after_ws
+.mark_ws_utf3:
+    mov bl, 1
+    mov r10, 3
     jmp .after_ws
 .mark_ws:
     mov bl, 1
@@ -222,7 +259,7 @@ word_count_main:
 .sep_char:
     mov r14, 0
 .adv:
-    inc r12
+    add r12, r10
     jmp .tw_loop
 .tw_done:
     mov rax, 1
@@ -233,10 +270,10 @@ word_count_main:
     mov rdi, r15
     lea rsi, [rel wc_num]
     call wc_u64_to_dec
+    mov rdx, rax           ; preserve length of number
     mov rax, 1
     mov rdi, 1
     lea rsi, [rel wc_num]
-    mov rdx, rax
     syscall
     mov rax, 1
     mov rdi, 1
